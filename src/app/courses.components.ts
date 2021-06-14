@@ -1,4 +1,4 @@
-import {Component} from '@angular/core'
+import {Component, OnInit} from '@angular/core'
 import { CoursesService } from './courses.service'
 
 @Component({
@@ -6,18 +6,46 @@ import { CoursesService } from './courses.service'
     template: `
         <h2>{{ title }}</h2>
         <ul>
-            <li *ngFor="let course of courses">
-                {{course}}
+            <li>
+                {{courses}}
             </li>
         <ul>
+        <!-- data binding with [] -->
+        <input [value]="courses" />
+        <!-- event binding with () -->
+        <button (click)="do($event)">Add {{count}}</button>
         `
 })
-export class CoursesComponent {
-    title = 'List of courses'
-    courses
+export class CoursesComponent implements OnInit{
+    title: string
+    courses: string
+    count: number
 
     // Dependency injection: by passing "service" with the class type as a param, the CoursesService stays decoupled vs using the "new" keyword and creating an instance inside the constructor which would tightly couple it and could cause issues if the constructor of CoursesService ever changed. The dependency of CoursesService is /injected/ vs built into the constructor
-    constructor(service: CoursesService) {
-        this.courses = service.getCourses()
+    // MUST use access modifier to signal that the property is implicity set from the param, i.e. "service" as an instance/property doesn't exist without the access modifier
+    constructor(private service: CoursesService) {
+        this.title = 'List of courses'
+        this.courses = ""
+        this.count = 0
+    }
+
+    ngOnInit() {
+        this.getPokeFromService()
+    }
+
+    getPokeFromService() {
+        console.log(this.service)
+        let bulbasaur = this.service.getPokes()
+        console.log(bulbasaur)
+        bulbasaur.subscribe(poke => {
+            console.log(poke)
+            // this.courses = poke.name
+        })
+        this.courses = "bulbasaur"
+    }
+
+    do(e: any) {
+        console.log(e)
+        this.count++
     }
 }
